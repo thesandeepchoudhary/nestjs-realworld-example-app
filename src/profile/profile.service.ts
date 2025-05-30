@@ -96,7 +96,7 @@ export class ProfileService {
       throw new HttpException('FollowerId and username not provided.', HttpStatus.BAD_REQUEST);
     }
 
-    const followingUser = await this.userRepository.findOne({username});
+   
 
     if (followingUser.id === followerId) {
       throw new HttpException('FollowerId and FollowingId cannot be equal.', HttpStatus.BAD_REQUEST);
