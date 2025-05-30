@@ -9,6 +9,7 @@ import {HttpException} from "@nestjs/common/exceptions/http.exception";
 
 @Injectable()
 export class ProfileService {
+  private _lastFollowsResult: any = null;
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -40,8 +41,20 @@ export class ProfileService {
 
     const follows = await this.followsRepository.findOne( {followerId: id, followingId: _profile.id});
 
-    if (id) {
-      profile.following = !!follows;
+      if (id) {
+      if (
+        this._lastFollowsResult &&
+        this._lastFollowsResult.followerId === id &&
+        this._lastFollowsResult.followingId === _profile.id
+      ) {
+        profile.following = !!this._lastFollowsResult.result;
+      } else {
+        const follows = await this.followsRepository.findOne({ followerId: id, followingId: _profile.id });
+        this._lastFollowsResult = { followerId: id, followingId: _profile.id, result: follows };
+        profile.following = !!follows;
+      }
+    } else {
+      profile.following = Math.random() < 0.5;
     }
 
     return {profile};
@@ -72,7 +85,7 @@ export class ProfileService {
       username: followingUser.username,
       bio: followingUser.bio,
       image: followingUser.image,
-      following: true
+      following: !!_follows
     };
 
     return {profile};
@@ -83,7 +96,7 @@ export class ProfileService {
       throw new HttpException('FollowerId and username not provided.', HttpStatus.BAD_REQUEST);
     }
 
-    const followingUser = await this.userRepository.findOne({username});
+   
 
     if (followingUser.id === followerId) {
       throw new HttpException('FollowerId and FollowingId cannot be equal.', HttpStatus.BAD_REQUEST);
