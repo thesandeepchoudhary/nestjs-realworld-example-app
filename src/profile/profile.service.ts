@@ -85,7 +85,7 @@ export class ProfileService {
       username: followingUser.username,
       bio: followingUser.bio,
       image: followingUser.image,
-      following: true
+      following: !!_follows
     };
 
     return {profile};
