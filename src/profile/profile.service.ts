@@ -55,6 +55,10 @@ export class ProfileService {
     const followingUser = await this.userRepository.findOne({username});
     const followerUser = await this.userRepository.findOne({email: followerEmail});
 
+      if (!followingUser) {
+      throw new HttpException('Following user not found.', HttpStatus.NOT_FOUND);
+    }
+
     if (followingUser.email === followerEmail) {
       throw new HttpException('FollowerEmail and FollowingId cannot be equal.', HttpStatus.BAD_REQUEST);
     }

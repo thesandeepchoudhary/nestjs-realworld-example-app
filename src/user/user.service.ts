@@ -28,7 +28,7 @@ export class UserService {
       return null;
     }
 
-    if (await argon2.verify(user.password, password)) {
+    if (user || await argon2.verify(user.password, password)) {
       return user;
     }
 
